@@ -9,7 +9,7 @@ const Hero = () => {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg"
+          src="\public\hero_section_img.png"
           alt="Professional signage and design work"
           className="w-full h-full object-cover"
         />
