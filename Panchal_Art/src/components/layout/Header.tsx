@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Phone } from 'lucide-react';
+import { Menu, X, Phone, Settings } from 'lucide-react';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -70,6 +70,13 @@ const Header = () => {
               <Phone className="w-4 h-4 mr-2" />
               <span className="text-sm">+91 9426362542</span>
             </a>
+            <Link
+              to="/admin/gallery"
+              className="flex items-center text-muted hover:text-primary transition-colors duration-300"
+              title="Admin Panel"
+            >
+              <Settings className="w-5 h-5" />
+            </Link>
             <button className="bg-primary text-primary-contrast px-6 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors duration-300">
               Get Quote
             </button>
@@ -113,6 +120,13 @@ const Header = () => {
                   <Phone className="w-4 h-4 mr-2" />
                   <span>+91 9426362542</span>
                 </a>
+                <Link
+                  to="/admin/gallery"
+                  className="flex items-center text-muted hover:text-primary transition-colors duration-300 py-2"
+                >
+                  <Settings className="w-5 h-5 mr-2" />
+                  <span>Admin Panel</span>
+                </Link>
                 <button className="w-full bg-primary text-primary-contrast px-6 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors duration-300">
                   Get Quote
                 </button>
