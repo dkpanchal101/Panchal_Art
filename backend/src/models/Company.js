@@ -89,6 +89,35 @@ companySchema.virtual('fullAddress').get(function() {
 // Ensure virtual fields are serialized
 companySchema.set('toJSON', { virtuals: true });
 
+// Static method to create default company
+companySchema.statics.createDefaultCompany = async function() {
+  const companyExists = await this.findOne({ email: process.env.COMPANY_EMAIL || 'info@panchalart.com' });
+  
+  if (!companyExists) {
+    const defaultCompany = await this.create({
+      companyName: process.env.COMPANY_NAME || 'Panchal Art',
+      description: process.env.COMPANY_DESCRIPTION || 'Professional signage and design services',
+      email: process.env.COMPANY_EMAIL || 'info@panchalart.com',
+      phone: process.env.COMPANY_PHONE || '+919426362542',
+      address: process.env.COMPANY_ADDRESS || 'In front of Railway Station, Thasara',
+      city: process.env.COMPANY_CITY || 'Thasara',
+      state: process.env.COMPANY_STATE || 'Gujarat',
+      country: process.env.COMPANY_COUNTRY || 'India',
+      primaryColor: process.env.COMPANY_PRIMARY_COLOR || '#000000',
+      secondaryColor: process.env.COMPANY_SECONDARY_COLOR || '#ffffff'
+    });
+    
+    console.log('✅ Default company created:', defaultCompany.companyName);
+    console.log('📋 Company ID:', defaultCompany._id.toString());
+    console.log('⚠️  IMPORTANT: Set this Company ID in Vercel as VITE_COMPANY_ID');
+    return defaultCompany;
+  }
+  
+  console.log('✅ Company already exists:', companyExists.companyName);
+  console.log('📋 Company ID:', companyExists._id.toString());
+  return companyExists;
+};
+
 const Company = mongoose.model('Company', companySchema);
 
 export default Company;

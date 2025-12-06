@@ -16,6 +16,7 @@ import publicRoutes from './routes/public.js';
 // Import middleware
 import { globalErrorHandler, notFound } from './middleware/errorHandler.js';
 import Admin from './models/Admin.js';
+import Company from './models/Company.js';
 
 // ES module dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -30,9 +31,13 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// Create default admin on startup
+// Create default admin and company on startup
 Admin.createDefaultAdmin().catch(err => {
   console.error('Error creating default admin:', err);
+});
+
+Company.createDefaultCompany().catch(err => {
+  console.error('Error creating default company:', err);
 });
 
 // Security middleware
@@ -93,6 +98,32 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// Get company ID endpoint (for setup purposes)
+app.get('/api/setup/company-id', async (req, res) => {
+  try {
+    const company = await Company.findOne().sort({ createdAt: 1 });
+    if (company) {
+      res.status(200).json({
+        success: true,
+        companyId: company._id.toString(),
+        companyName: company.companyName,
+        message: 'Set this Company ID in Vercel as VITE_COMPANY_ID environment variable'
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'No company found. Please create a company first.'
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching company ID',
+      error: error.message
+    });
+  }
 });
 
 // API Routes
