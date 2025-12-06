@@ -26,6 +26,14 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
+      // Validate Company ID is set
+      if (!COMPANY_ID) {
+        alert('Error: Company ID is not configured. Please contact the administrator.');
+        console.error('COMPANY_ID is not set in environment variables');
+        setIsSubmitting(false);
+        return;
+      }
+
       // Map service name to backend format
       const serviceMap: { [key: string]: string } = {
         'Radium Cutting & Custom Design': 'radium-cutting',
@@ -42,15 +50,44 @@ const Contact = () => {
         service: serviceMap[formData.service] || formData.service.toLowerCase().replace(/\s+/g, '-')
       };
 
+      // Log the API endpoint for debugging
+      console.log('Submitting to:', API_ENDPOINTS.CONTACT);
+      console.log('Payload:', payload);
+      console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || 'Using default');
+      console.log('Company ID:', COMPANY_ID || 'NOT SET - This will cause an error!');
+
+      if (!COMPANY_ID) {
+        alert('Error: Company ID is not configured. Please contact the administrator.');
+        console.error('COMPANY_ID is not set in environment variables');
+        setIsSubmitting(false);
+        return;
+      }
+
       const response = await fetch(API_ENDPOINTS.CONTACT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
+        mode: 'cors', // Explicitly set CORS mode
       });
 
-      const data = await response.json();
+      // Check if response is ok before parsing JSON
+      let data;
+      const contentType = response.headers.get('content-type');
+      
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text);
+        throw new Error(`Server returned non-JSON response. Status: ${response.status}. Response: ${text.substring(0, 100)}`);
+      }
+
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('Failed to parse JSON response:', jsonError);
+        throw new Error(`Server returned invalid JSON. Status: ${response.status}`);
+      }
 
       if (response.ok) {
         setIsSubmitted(true);
@@ -75,7 +112,18 @@ const Contact = () => {
       }
     } catch (error) {
       console.error('Network error:', error);
-      alert('Network error. Please check your connection and try again.');
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        apiUrl: API_ENDPOINTS.CONTACT,
+        companyId: COMPANY_ID || 'NOT SET'
+      });
+      
+      // Show more detailed error message
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Network error. Please check your connection and try again.';
+      
+      alert(`Error: ${errorMessage}\n\nPlease check:\n1. Backend is running at: ${API_ENDPOINTS.CONTACT}\n2. CORS is configured correctly\n3. Company ID is set`);
     } finally {
       setIsSubmitting(false);
     }
