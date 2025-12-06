@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Upload, Send, CheckCircle } from 'lucide-react';
+import { API_ENDPOINTS } from '../../config/api';
 
 const QuoteModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -70,7 +71,7 @@ const QuoteModal = () => {
         submitData.append('image', formData.image);
       }
 
-      const response = await fetch('http://localhost:5000/api/quotes', {
+      const response = await fetch(API_ENDPOINTS.QUOTES, {
         method: 'POST',
         body: submitData, // Don't set Content-Type header - let browser set it with boundary
       });

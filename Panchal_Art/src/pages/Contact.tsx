@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from 'lucide-react';
+import { API_ENDPOINTS, COMPANY_ID } from '../config/api';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -25,12 +26,28 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/contact', {
+      // Map service name to backend format
+      const serviceMap: { [key: string]: string } = {
+        'Radium Cutting & Custom Design': 'radium-cutting',
+        'Stylish Name Printing & Lettering': 'printing',
+        'Multi-color Radium Boards & Cutting': 'boards',
+        'Car Glass Film Pasting': 'car-glass',
+        'Shop & Stage Banners & Posters': 'banners',
+        'Logo & Poster Design, Digital Design': 'logo-design'
+      };
+
+      const payload = {
+        ...formData,
+        companyId: COMPANY_ID,
+        service: serviceMap[formData.service] || formData.service.toLowerCase().replace(/\s+/g, '-')
+      };
+
+      const response = await fetch(API_ENDPOINTS.CONTACT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
