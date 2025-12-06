@@ -11,6 +11,7 @@ import About from './pages/About';
 import Services from './pages/Services';
 import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
+import AdminGallery from './pages/AdminGallery';
 import NotFound from './pages/NotFound';
 
 const AnimatedRoutes: React.FC = () => {
@@ -30,6 +31,7 @@ const AnimatedRoutes: React.FC = () => {
         <Route path="/services" element={<motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}><Services /></motion.div>} />
         <Route path="/gallery" element={<motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}><Gallery /></motion.div>} />
         <Route path="/contact" element={<motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}><Contact /></motion.div>} />
+        <Route path="/admin/gallery" element={<motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}><AdminGallery /></motion.div>} />
         <Route path="*" element={<motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}><NotFound /></motion.div>} />
       </Routes>
     </AnimatePresence>

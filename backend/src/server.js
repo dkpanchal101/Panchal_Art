@@ -12,6 +12,8 @@ import connectDB from './config/database.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
 import publicRoutes from './routes/public.js';
+import galleryRoutes from './routes/galleryRoutes.js';
+import quoteRoutes from './routes/quoteRoutes.js';
 
 // Import middleware
 import { globalErrorHandler, notFound } from './middleware/errorHandler.js';
@@ -158,6 +160,12 @@ app.get('/api/setup/company-id', async (req, res) => {
 // API Routes
 // Public routes with stricter rate limiting
 app.use('/api/public', publicLimiter, publicRoutes);
+
+// Quote routes (public POST for submitting quotes, protected GET/PUT/DELETE for admin)
+app.use('/api/quotes', quoteRoutes);
+
+// Gallery routes (public GET, protected POST)
+app.use('/api/gallery', galleryRoutes);
 
 // Admin authentication routes
 app.use('/api/admin/auth', authRoutes);

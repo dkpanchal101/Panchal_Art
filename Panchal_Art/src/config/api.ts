@@ -15,7 +15,9 @@ export const COMPANY_ID = import.meta.env.VITE_COMPANY_ID || '';
 export const API_ENDPOINTS = {
   CONTACT: `${API_BASE_URL}/api/public/contact`,
   QUOTES: `${API_BASE_URL}/api/quotes`,
-  GALLERY: (companyId: string) => `${API_BASE_URL}/api/public/gallery/${companyId}`,
+  GALLERY: `${API_BASE_URL}/api/gallery`,
+  GALLERY_ADMIN_ADD: `${API_BASE_URL}/api/gallery/admin/add`,
+  GALLERY_BY_COMPANY: (companyId: string) => `${API_BASE_URL}/api/public/gallery/${companyId}`,
   GALLERY_CATEGORIES: (companyId: string) => `${API_BASE_URL}/api/public/gallery/${companyId}/categories`,
   COMPANY: (companyId: string) => `${API_BASE_URL}/api/public/company/${companyId}`,
   GET_COMPANY_ID: `${API_BASE_URL}/api/setup/company-id`,

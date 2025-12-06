@@ -13,7 +13,7 @@ const gallerySchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: [true, 'Title is required'],
+    required: false,
     trim: true,
     maxlength: [100, 'Title cannot exceed 100 characters']
   },
@@ -28,8 +28,10 @@ const gallerySchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: [true, 'Category is required'],
+    required: false,
+    default: 'All Work',
     enum: [
+      'All Work',
       'radium-cutting',
       'printing',
       'banners',

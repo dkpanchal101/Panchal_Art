@@ -2,6 +2,7 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { uploadToCloudinary } from '../config/cloudinary.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -211,6 +212,78 @@ export const uploadLogo = (req, res, next) => {
     // Add file path to request
     req.file.path = `/uploads/logo/${req.file.filename}`;
     next();
+  });
+};
+
+/**
+ * Cloudinary Upload Middleware for Gallery Images
+ * Uses memory storage and uploads directly to Cloudinary
+ */
+const cloudinaryMemoryStorage = multer.memoryStorage();
+
+const cloudinaryGalleryUpload = multer({
+  storage: cloudinaryMemoryStorage,
+  limits: {
+    fileSize: maxFileSize,
+    files: 1
+  },
+  fileFilter: imageFilter
+});
+
+/**
+ * Middleware for gallery image upload to Cloudinary (required)
+ */
+export const uploadGalleryImageToCloudinary = async (req, res, next) => {
+  const uploadMiddleware = cloudinaryGalleryUpload.single('image');
+  
+  uploadMiddleware(req, res, async (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          message: `File too large. Maximum size is ${maxFileSize / (1024 * 1024)}MB.`
+        });
+      }
+      if (err.code === 'LIMIT_FILE_COUNT') {
+        return res.status(400).json({
+          success: false,
+          message: 'Too many files. Only 1 file allowed.'
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        message: `Upload error: ${err.message}`
+      });
+    } else if (err) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded. Please select an image file.'
+      });
+    }
+    
+    try {
+      // Upload to Cloudinary
+      const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+      
+      // Store Cloudinary URL in req.file.path for compatibility
+      req.file.path = result.secure_url;
+      req.file.cloudinaryId = result.public_id;
+      
+      next();
+    } catch (cloudinaryError) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to upload image to Cloudinary',
+        error: cloudinaryError.message
+      });
+    }
   });
 };
 
