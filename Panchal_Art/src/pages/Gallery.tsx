@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { X, ChevronLeft, ChevronRight, Filter, Loader2, Upload } from 'lucide-react';
 import { API_ENDPOINTS } from '../config/api';
+import { useAuth } from '../hooks/useAuth';
 
 interface GalleryImage {
   _id: string;
@@ -17,6 +18,7 @@ const Gallery = () => {
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
 
   const categories = [
     { id: 'all', name: 'All Work' },
@@ -97,18 +99,20 @@ const Gallery = () => {
       <section className="py-16 bg-gradient-to-br from-primary/10 to-accent/10">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
               <h1 className="text-4xl md:text-5xl font-bold text-text">
                 Our Portfolio
               </h1>
-              <Link
-                to="/admin/gallery"
-                className="flex items-center gap-2 bg-primary text-primary-contrast px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors duration-300 text-sm font-medium"
-                title="Upload New Image"
-              >
-                <Upload className="w-4 h-4" />
-                <span className="hidden sm:inline">Upload</span>
-              </Link>
+              {isAuthenticated && (
+                <Link
+                  to="/admin/gallery"
+                  className="flex items-center gap-2 bg-primary text-primary-contrast px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors duration-300 text-sm font-medium"
+                  title="Upload New Image"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span className="hidden sm:inline">Upload</span>
+                </Link>
+              )}
             </div>
             <p className="text-xl text-muted mb-8">
               Explore our collection of custom designs and professional installations
