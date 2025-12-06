@@ -18,6 +18,28 @@ export const API_ENDPOINTS = {
   GALLERY: (companyId: string) => `${API_BASE_URL}/api/public/gallery/${companyId}`,
   GALLERY_CATEGORIES: (companyId: string) => `${API_BASE_URL}/api/public/gallery/${companyId}/categories`,
   COMPANY: (companyId: string) => `${API_BASE_URL}/api/public/company/${companyId}`,
+  GET_COMPANY_ID: `${API_BASE_URL}/api/setup/company-id`,
+};
+
+// Function to get company ID from backend if not set
+export const getCompanyId = async (): Promise<string> => {
+  // If already set, return it
+  if (COMPANY_ID) {
+    return COMPANY_ID;
+  }
+  
+  // Try to fetch from backend
+  try {
+    const response = await fetch(API_ENDPOINTS.GET_COMPANY_ID);
+    const data = await response.json();
+    if (data.success && data.companyId) {
+      return data.companyId;
+    }
+  } catch (error) {
+    console.error('Failed to fetch company ID from backend:', error);
+  }
+  
+  return '';
 };
 
 export default API_BASE_URL;

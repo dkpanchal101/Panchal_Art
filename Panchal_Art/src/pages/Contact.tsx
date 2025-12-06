@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from 'lucide-react';
-import { API_ENDPOINTS, COMPANY_ID } from '../config/api';
+import { API_ENDPOINTS, getCompanyId } from '../config/api';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +12,16 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [companyId, setCompanyId] = useState<string>('');
+
+  // Fetch company ID on component mount
+  useEffect(() => {
+    const fetchCompanyId = async () => {
+      const id = await getCompanyId();
+      setCompanyId(id);
+    };
+    fetchCompanyId();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -26,10 +36,17 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
+      // Get company ID (from env or fetch from backend)
+      let currentCompanyId = companyId;
+      if (!currentCompanyId) {
+        currentCompanyId = await getCompanyId();
+        setCompanyId(currentCompanyId);
+      }
+
       // Validate Company ID is set
-      if (!COMPANY_ID) {
-        alert('Error: Company ID is not configured. Please contact the administrator.');
-        console.error('COMPANY_ID is not set in environment variables');
+      if (!currentCompanyId) {
+        alert('Error: Unable to get Company ID. Please try again or contact the administrator.');
+        console.error('Company ID could not be retrieved');
         setIsSubmitting(false);
         return;
       }
@@ -46,22 +63,15 @@ const Contact = () => {
 
       const payload = {
         ...formData,
-        companyId: COMPANY_ID,
+        companyId: currentCompanyId,
         service: serviceMap[formData.service] || formData.service.toLowerCase().replace(/\s+/g, '-')
       };
 
       // Log the API endpoint for debugging
       console.log('Submitting to:', API_ENDPOINTS.CONTACT);
       console.log('Payload:', payload);
-      console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || 'Using default');
-      console.log('Company ID:', COMPANY_ID || 'NOT SET - This will cause an error!');
-
-      if (!COMPANY_ID) {
-        alert('Error: Company ID is not configured. Please contact the administrator.');
-        console.error('COMPANY_ID is not set in environment variables');
-        setIsSubmitting(false);
-        return;
-      }
+      console.log('API Base URL:', (import.meta as any).env?.VITE_API_BASE_URL || 'Using default');
+      console.log('Company ID:', currentCompanyId);
 
       const response = await fetch(API_ENDPOINTS.CONTACT, {
         method: 'POST',
@@ -115,7 +125,7 @@ const Contact = () => {
       console.error('Error details:', {
         message: error instanceof Error ? error.message : 'Unknown error',
         apiUrl: API_ENDPOINTS.CONTACT,
-        companyId: COMPANY_ID || 'NOT SET'
+        companyId: companyId || 'NOT SET'
       });
       
       // Show more detailed error message
