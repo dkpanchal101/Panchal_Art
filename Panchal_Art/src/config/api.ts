@@ -21,6 +21,8 @@ export const API_ENDPOINTS = {
   GALLERY_CATEGORIES: (companyId: string) => `${API_BASE_URL}/api/public/gallery/${companyId}/categories`,
   COMPANY: (companyId: string) => `${API_BASE_URL}/api/public/company/${companyId}`,
   GET_COMPANY_ID: `${API_BASE_URL}/api/setup/company-id`,
+  ADMIN_LOGIN: `${API_BASE_URL}/api/admin/auth/login`,
+  ADMIN_ME: `${API_BASE_URL}/api/admin/auth/me`,
 };
 
 // Function to get company ID from backend if not set
