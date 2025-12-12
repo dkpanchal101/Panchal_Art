@@ -11,15 +11,8 @@ const Services = () => {
       image: "/Radium.avif"
     },
     {
-      icon: <Type className="w-12 h-12 text-primary" />,
-      title: "Stylish Name Printing & Lettering",
-      description: "Beautiful custom lettering for businesses, homes, and vehicles. From elegant scripts to bold modern fonts, we bring your words to life.",
-      features: ["Various font styles", "Vinyl lettering", "3D raised letters", "Color matching"],
-      image: "/Banner.png"
-    },
-    {
       icon: <Palette className="w-12 h-12 text-primary" />,
-      title: "School Banner",
+      title: "Banner",
       description: "Eye-catching multi-color radium boards perfect for storefronts, restaurants, and retail spaces. Vibrant colors that capture attention day and night.",
       features: ["LED backlighting", "Color combinations", "Energy efficient", "Long-lasting"],
       image: "/Banner.png"
@@ -29,7 +22,7 @@ const Services = () => {
       title: "Car Glass Film Pasting",
       description: "Professional automotive window tinting and protective films. UV protection, privacy, and style enhancement for your vehicle.",
       features: ["UV protection", "Privacy tinting", "Heat reduction", "Professional installation"],
-      image: "/Film Pasting.jpg"
+      image: "/automotive-window-film.jpeg"
     },
     {
       icon: <Image className="w-12 h-12 text-primary" />,

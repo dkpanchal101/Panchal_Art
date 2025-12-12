@@ -57,7 +57,7 @@ const About = () => {
               </div>
               <div className="bg-card rounded-lg p-8 shadow-md">
                 <img 
-                  src="https://images.pexels.com/photos/1181534/pexels-photo-1181534.jpeg" 
+                  src="/Main Logo.png" 
                   alt="Craftsman working on custom design"
                   className="w-full h-64 object-cover rounded-lg mb-4"
                 />

@@ -13,21 +13,21 @@ const Services = () => {
     },
     {
       icon: <Type className="w-8 h-8" />,
-      title: "Stylish Name Printing & Lettering",
+      title: "Stylish Name Printing",
       description: "Beautiful custom lettering for businesses, homes, and vehicles in various styles.",
       image: "/Banner.png"
     },
     {
       icon: <Palette className="w-8 h-8" />,
-      title: "Multi-color Radium Boards",
+      title: "CNC cutting Banner",
       description: "Eye-catching multi-color radium boards with LED backlighting for maximum impact.",
-      image: "/Radium.avif"
+      image: "/CNC banner.webp"
     },
     {
       icon: <Car className="w-8 h-8" />,
       title: "Car Glass Film Pasting",
       description: "Professional automotive window tinting for UV protection and privacy.",
-      image: "/Film Pasting.jpg"
+      image: "/automotive-window-film.jpeg"
     },
     {
       icon: <Image className="w-8 h-8" />,
