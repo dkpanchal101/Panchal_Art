@@ -8,7 +8,7 @@ const Services = () => {
       title: "Radium Cutting & Custom Design & Multi-color Radium Boards & Cutting",
       description: "Precision radium cutting for signs, boards, and custom displays. Our state-of-the-art cutting technology ensures clean, professional edges every time.",
       features: ["Precision laser cutting", "Custom shapes & sizes", "Weather-resistant materials", "Installation service"],
-      image: "https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg"
+      image: "https://share.google/ITvqL5bKuhM1fUDeE"
     },
     {
       icon: <Type className="w-12 h-12 text-primary" />,
