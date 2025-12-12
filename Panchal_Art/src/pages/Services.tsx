@@ -5,7 +5,7 @@ const Services = () => {
   const services = [
     {
       icon: <Scissors className="w-12 h-12 text-primary" />,
-      title: "Radium Cutting & Custom Design",
+      title: "Radium Cutting & Custom Design & Multi-color Radium Boards & Cutting",
       description: "Precision radium cutting for signs, boards, and custom displays. Our state-of-the-art cutting technology ensures clean, professional edges every time.",
       features: ["Precision laser cutting", "Custom shapes & sizes", "Weather-resistant materials", "Installation service"],
       image: "https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg"
@@ -19,7 +19,7 @@ const Services = () => {
     },
     {
       icon: <Palette className="w-12 h-12 text-primary" />,
-      title: "Multi-color Radium Boards & Cutting",
+      title: "School Banner",
       description: "Eye-catching multi-color radium boards perfect for storefronts, restaurants, and retail spaces. Vibrant colors that capture attention day and night.",
       features: ["LED backlighting", "Color combinations", "Energy efficient", "Long-lasting"],
       image: "https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg"
