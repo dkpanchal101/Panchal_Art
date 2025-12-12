@@ -25,7 +25,7 @@ const Hero = () => {
       <div className="absolute inset-0 z-0">
         {/* Try to load the image, with fallback */}
         <img
-          src="/public/hero_section_img.png"
+          src="/hero_section_img.png"
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
           onError={(e) => {

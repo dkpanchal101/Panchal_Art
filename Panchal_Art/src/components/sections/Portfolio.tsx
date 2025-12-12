@@ -8,42 +8,42 @@ const Portfolio = () => {
       id: 1,
       title: "Custom Restaurant Signage",
       category: "Radium Cutting",
-      image: "https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg",
+      image: "/Radium.avif",
       description: "Professional radium cut signage with LED backlighting"
     },
     {
       id: 2,
       title: "Business Storefront Letters",
       category: "Lettering",
-      image: "https://images.pexels.com/photos/1181534/pexels-photo-1181534.jpeg",
+      image: "/Banner.png",
       description: "Elegant lettering installation for retail business"
     },
     {
       id: 3,
       title: "Event Banner Design",
       category: "Banners",
-      image: "https://images.pexels.com/photos/1181622/pexels-photo-1181622.jpeg",
+      image: "/Banner.png",
       description: "Large format banner for outdoor promotional event"
     },
     {
       id: 4,
       title: "Automotive Window Tinting",
       category: "Car Films",
-      image: "https://images.pexels.com/photos/3752169/pexels-photo-3752169.jpeg",
+      image: "/Film Pasting.jpg",
       description: "Professional car window tinting with UV protection"
     },
     {
       id: 5,
       title: "Brand Logo Creation",
       category: "Digital Design",
-      image: "https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg",
+      image: "/Logo.png",
       description: "Modern logo design for technology startup"
     },
     {
       id: 6,
       title: "Multi-Color Display Board",
       category: "Radium Cutting",
-      image: "https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg",
+      image: "/Radium.avif",
       description: "Vibrant multi-color radium board installation"
     }
   ];

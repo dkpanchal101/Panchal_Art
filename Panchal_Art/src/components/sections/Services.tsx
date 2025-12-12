@@ -9,37 +9,37 @@ const Services = () => {
       icon: <Scissors className="w-8 h-8" />,
       title: "Radium Cutting & Custom Design",
       description: "Precision radium cutting for professional signage with custom shapes and sizes.",
-      image: "https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg"
+      image: "/Radium.avif"
     },
     {
       icon: <Type className="w-8 h-8" />,
       title: "Stylish Name Printing & Lettering",
       description: "Beautiful custom lettering for businesses, homes, and vehicles in various styles.",
-      image: "https://images.pexels.com/photos/1181534/pexels-photo-1181534.jpeg"
+      image: "/Banner.png"
     },
     {
       icon: <Palette className="w-8 h-8" />,
       title: "Multi-color Radium Boards",
       description: "Eye-catching multi-color radium boards with LED backlighting for maximum impact.",
-      image: "https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg"
+      image: "/Radium.avif"
     },
     {
       icon: <Car className="w-8 h-8" />,
       title: "Car Glass Film Pasting",
       description: "Professional automotive window tinting for UV protection and privacy.",
-      image: "https://images.pexels.com/photos/3752169/pexels-photo-3752169.jpeg"
+      image: "/Film Pasting.jpg"
     },
     {
       icon: <Image className="w-8 h-8" />,
       title: "Shop & Stage Banners",
       description: "Durable banners and posters for events, promotions, and branding needs.",
-      image: "https://images.pexels.com/photos/1181622/pexels-photo-1181622.jpeg"
+      image: "/Banner.png"
     },
     {
       icon: <Monitor className="w-8 h-8" />,
       title: "Logo & Digital Design",
       description: "Complete branding solutions from concept to creation across all platforms.",
-      image: "https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg"
+      image: "/Logo.png"
     }
   ];
 

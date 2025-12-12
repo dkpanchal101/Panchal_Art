@@ -72,7 +72,7 @@ const About = () => {
             <Reveal>
               <div className="relative rounded-lg overflow-hidden shadow-xl">
                 <img
-                  src="https://images.pexels.com/photos/1181534/pexels-photo-1181534.jpeg"
+                  src="/hero_section_img.png"
                   alt="Master craftsman working on custom design"
                   className="w-full h-96 object-cover"
                 />

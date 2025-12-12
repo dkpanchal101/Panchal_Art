@@ -5,45 +5,45 @@ const Services = () => {
   const services = [
     {
       icon: <Scissors className="w-12 h-12 text-primary" />,
-      title: "Radium Cutting & Custom Design & Multi-color Radium Boards & Cutting",
+      title: "Multi-color Radium Boards & Cutting",
       description: "Precision radium cutting for signs, boards, and custom displays. Our state-of-the-art cutting technology ensures clean, professional edges every time.",
       features: ["Precision laser cutting", "Custom shapes & sizes", "Weather-resistant materials", "Installation service"],
-      image: "https://share.google/ITvqL5bKuhM1fUDeE"
+      image: "/Radium.avif"
     },
     {
       icon: <Type className="w-12 h-12 text-primary" />,
       title: "Stylish Name Printing & Lettering",
       description: "Beautiful custom lettering for businesses, homes, and vehicles. From elegant scripts to bold modern fonts, we bring your words to life.",
       features: ["Various font styles", "Vinyl lettering", "3D raised letters", "Color matching"],
-      image: "https://images.pexels.com/photos/1181534/pexels-photo-1181534.jpeg"
+      image: "/Banner.png"
     },
     {
       icon: <Palette className="w-12 h-12 text-primary" />,
       title: "School Banner",
       description: "Eye-catching multi-color radium boards perfect for storefronts, restaurants, and retail spaces. Vibrant colors that capture attention day and night.",
       features: ["LED backlighting", "Color combinations", "Energy efficient", "Long-lasting"],
-      image: "https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg"
+      image: "/Banner.png"
     },
     {
       icon: <Car className="w-12 h-12 text-primary" />,
       title: "Car Glass Film Pasting",
       description: "Professional automotive window tinting and protective films. UV protection, privacy, and style enhancement for your vehicle.",
       features: ["UV protection", "Privacy tinting", "Heat reduction", "Professional installation"],
-      image: "https://images.pexels.com/photos/3752169/pexels-photo-3752169.jpeg"
+      image: "/Film Pasting.jpg"
     },
     {
       icon: <Image className="w-12 h-12 text-primary" />,
       title: "Shop & Stage Banners & Posters",
       description: "High-quality banners and posters for events, promotions, and branding. Durable materials that withstand weather and maintain vibrant colors.",
       features: ["Weather resistant", "Large format printing", "Custom sizing", "Fast turnaround"],
-      image: "https://images.pexels.com/photos/1181622/pexels-photo-1181622.jpeg"
+      image: "/Banner.png"
     },
     {
       icon: <Monitor className="w-12 h-12 text-primary" />,
       title: "Logo & Poster Design, Digital Design",
       description: "Complete branding solutions from concept to creation. Digital designs that work across all platforms and print media.",
       features: ["Brand identity", "Digital artwork", "Print-ready files", "Multiple formats"],
-      image: "https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg"
+      image: "/Logo.png"
     }
   ];
 
