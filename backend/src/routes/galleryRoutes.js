@@ -2,7 +2,7 @@ import express from 'express';
 import Gallery from '../models/Gallery.js';
 import Company from '../models/Company.js';
 import { protect } from '../middleware/auth.js';
-import { uploadGalleryImageToCloudinary } from '../middleware/upload.js';
+import { uploadGalleryImage } from '../middleware/upload.js';
 import { catchAsync } from '../middleware/errorHandler.js';
 import { AppError } from '../middleware/errorHandler.js';
 
@@ -12,11 +12,14 @@ const router = express.Router();
  * @route   GET /api/gallery
  * @desc    Get all gallery images (public route)
  * @access  Public
- * @returns All gallery documents sorted by createdAt (newest first)
  */
 router.get('/', catchAsync(async (req, res, next) => {
-  // Get all published gallery images, sorted by createdAt (newest first)
-  const gallery = await Gallery.find({ isPublished: true })
+  const query = { isPublished: true };
+  if (req.query.category && req.query.category !== 'ALL WORK' && req.query.category !== 'All Work') {
+    query.category = req.query.category;
+  }
+
+  const gallery = await Gallery.find(query)
     .select('-createdBy -companyId')
     .sort({ createdAt: -1 });
 
@@ -31,27 +34,21 @@ router.get('/', catchAsync(async (req, res, next) => {
 
 /**
  * @route   POST /api/gallery/admin/add
- * @desc    Upload new gallery image (admin only)
+ * @desc    Upload new gallery image (admin only - local storage)
  * @access  Private (Admin)
- * @body    multipart/form-data:
- *          - image: File (required)
- *          - title: String (optional)
- *          - category: String (optional, default "All Work")
  */
 router.post('/admin/add', 
   protect,
-  uploadGalleryImageToCloudinary,
+  uploadGalleryImage,
   catchAsync(async (req, res, next) => {
     if (!req.file) {
       return next(new AppError('Please upload an image file', 400));
     }
 
-    const { title, category } = req.body;
+    const { title, category, description } = req.body;
 
-    // Get companyId from admin user, or get default company
     let companyId = req.user.companyId;
     if (!companyId) {
-      // Get the first/default company if user doesn't have one
       const defaultCompany = await Company.findOne().sort({ createdAt: 1 });
       if (!defaultCompany) {
         return next(new AppError('No company found. Please create a company first.', 400));
@@ -59,17 +56,13 @@ router.post('/admin/add',
       companyId = defaultCompany._id;
     }
 
-    // Validate category if provided
-    const validCategories = ['All Work', 'radium-cutting', 'printing', 'banners', 'car-glass', 'logo-design', 'boards'];
-    const finalCategory = category && validCategories.includes(category) ? category : 'All Work';
-
-    // Create gallery item
     const gallery = await Gallery.create({
       companyId: companyId,
-      title: title || undefined,
-      imageUrl: req.file.path, // Cloudinary URL
-      category: finalCategory,
-      isPublished: true, // Auto-publish for new uploads
+      title: title || 'Custom Signage Asset',
+      description: description || '',
+      imageUrl: req.file.path, // Local path e.g. /uploads/gallery/filename.jpg
+      category: (category && category.trim()) ? category.trim() : 'General',
+      isPublished: true,
       createdBy: req.user.id
     });
 

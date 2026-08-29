@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { X, ChevronLeft, ChevronRight, Filter, Loader2, Upload, Sparkles, ExternalLink, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { API_ENDPOINTS } from '../config/api';
+import { API_ENDPOINTS, API_BASE_URL } from '../config/api';
 import { useAuth } from '../hooks/useAuth';
 import Reveal from '../components/ui/Reveal';
 
@@ -14,6 +14,12 @@ interface GalleryImage {
   description?: string;
 }
 
+const getFullImageUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
 const Gallery = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,16 +29,6 @@ const Gallery = () => {
   const [error, setError] = useState<string | null>(null);
   const [sliderPosition, setSliderPosition] = useState(50);
   const { isAuthenticated } = useAuth();
-
-  const categories = [
-    { id: 'all', name: 'All Work' },
-    { id: 'radium-cutting', name: 'Radium Cutting' },
-    { id: 'banners', name: 'Banners' },
-    { id: 'car-glass', name: 'Car Glass' },
-    { id: 'logo-design', name: 'Logo Design' },
-    { id: 'boards', name: 'Boards' },
-    { id: 'printing', name: 'Printing' }
-  ];
 
   useEffect(() => {
     const fetchGalleryImages = async () => {
@@ -65,8 +61,20 @@ const Gallery = () => {
     }
   };
 
+  // Dynamically extract categories from fetched gallery images
+  const uniqueCategories = Array.from(
+    new Set(galleryImages.map(img => img.category ? img.category.trim() : '').filter(Boolean))
+  );
+
+  const categories = [
+    { id: 'all', name: 'All Work' },
+    ...uniqueCategories.map(cat => ({ id: cat, name: cat }))
+  ];
+
   const filteredImages = galleryImages.filter(img => {
-    const matchesCategory = selectedCategory === 'all' || selectedCategory === 'All Work' || img.category === selectedCategory;
+    const imgCat = (img.category || '').trim();
+    const matchesCategory = selectedCategory === 'all' || selectedCategory === 'All Work' || imgCat.toLowerCase() === selectedCategory.toLowerCase();
+    
     const matchesSearch = searchQuery === '' || 
       (img.title && img.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (img.category && img.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -77,7 +85,7 @@ const Gallery = () => {
 
   const getCategoryCount = (catId: string) => {
     if (catId === 'all' || catId === 'All Work') return galleryImages.length;
-    return galleryImages.filter(img => img.category === catId).length;
+    return galleryImages.filter(img => (img.category || '').trim().toLowerCase() === catId.toLowerCase()).length;
   };
 
   const openLightbox = (imageId: string) => {
@@ -200,7 +208,7 @@ const Gallery = () => {
         </div>
       </section>
 
-      {/* Sticky Compact Category Filter Bar */}
+      {/* Sticky Compact Dynamic Category Filter Bar */}
       <section className="py-3 bg-slate-900 border-b border-slate-800 sticky top-[68px] z-30 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5">
@@ -211,7 +219,7 @@ const Gallery = () => {
 
             <div className="flex flex-wrap items-center justify-center gap-1.5">
               {categories.map(category => {
-                const isActive = selectedCategory === category.id;
+                const isActive = selectedCategory.toLowerCase() === category.id.toLowerCase();
                 const count = getCategoryCount(category.id);
                 return (
                   <button
@@ -286,7 +294,7 @@ const Gallery = () => {
                   >
                     <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
                       <img
-                        src={image.imageUrl}
+                        src={getFullImageUrl(image.imageUrl)}
                         alt={image.title || 'Gallery image'}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-95 group-hover:opacity-100"
                         loading="lazy"
@@ -361,7 +369,7 @@ const Gallery = () => {
 
               <div className="bg-slate-950 flex items-center justify-center p-3 min-h-[360px]">
                 <img
-                  src={selectedImageData.imageUrl}
+                  src={getFullImageUrl(selectedImageData.imageUrl)}
                   alt={selectedImageData.title || 'Gallery item'}
                   className="w-full h-auto max-h-[65vh] object-contain rounded-lg"
                 />

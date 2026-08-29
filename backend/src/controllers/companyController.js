@@ -3,6 +3,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { validationResult } from 'express-validator';
 import Company from '../models/Company.js';
+import Gallery from '../models/Gallery.js';
+import Quote from '../models/Quote.js';
+import Contact from '../models/Contact.js';
 import { AppError, catchAsync } from '../middleware/errorHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -14,7 +17,6 @@ const __dirname = path.dirname(__filename);
  * @access  Private
  */
 export const getCompany = catchAsync(async (req, res, next) => {
-  // Superadmin can access any company, regular admin only their own
   let companyId = req.user.companyId;
   
   if (req.user.role === 'superadmin' && req.query.companyId) {
@@ -22,7 +24,13 @@ export const getCompany = catchAsync(async (req, res, next) => {
   }
 
   if (!companyId) {
-    return next(new AppError('No company associated with this account', 404));
+    // If no companyId is set on admin user, fallback to the first company in database
+    const defaultCompany = await Company.findOne();
+    if (defaultCompany) {
+      companyId = defaultCompany._id;
+    } else {
+      return next(new AppError('No company associated with this account', 404));
+    }
   }
 
   const company = await Company.findById(companyId);
@@ -45,7 +53,6 @@ export const getCompany = catchAsync(async (req, res, next) => {
  * @access  Private
  */
 export const updateCompany = catchAsync(async (req, res, next) => {
-  // Check validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
@@ -58,11 +65,16 @@ export const updateCompany = catchAsync(async (req, res, next) => {
   
   if (req.user.role === 'superadmin' && req.body.companyId) {
     companyId = req.body.companyId;
-    delete req.body.companyId; // Remove from update data
+    delete req.body.companyId;
   }
 
   if (!companyId) {
-    return next(new AppError('No company associated with this account', 404));
+    const defaultCompany = await Company.findOne();
+    if (defaultCompany) {
+      companyId = defaultCompany._id;
+    } else {
+      return next(new AppError('No company associated with this account', 404));
+    }
   }
 
   const company = await Company.findById(companyId);
@@ -71,7 +83,6 @@ export const updateCompany = catchAsync(async (req, res, next) => {
     return next(new AppError('Company not found', 404));
   }
 
-  // Update allowed fields
   const allowedFields = [
     'companyName',
     'description',
@@ -119,7 +130,12 @@ export const uploadLogo = catchAsync(async (req, res, next) => {
   }
 
   if (!companyId) {
-    return next(new AppError('No company associated with this account', 404));
+    const defaultCompany = await Company.findOne();
+    if (defaultCompany) {
+      companyId = defaultCompany._id;
+    } else {
+      return next(new AppError('No company associated with this account', 404));
+    }
   }
 
   const company = await Company.findById(companyId);
@@ -128,7 +144,6 @@ export const uploadLogo = catchAsync(async (req, res, next) => {
     return next(new AppError('Company not found', 404));
   }
 
-  // Delete old logo if exists
   if (company.logo) {
     const oldLogoPath = path.join(__dirname, '../..', company.logo);
     if (fs.existsSync(oldLogoPath)) {
@@ -136,7 +151,6 @@ export const uploadLogo = catchAsync(async (req, res, next) => {
     }
   }
 
-  // Update logo path
   company.logo = req.file.path;
   await company.save();
 
@@ -161,7 +175,12 @@ export const getCompanySettings = catchAsync(async (req, res, next) => {
   }
 
   if (!companyId) {
-    return next(new AppError('No company associated with this account', 404));
+    const defaultCompany = await Company.findOne();
+    if (defaultCompany) {
+      companyId = defaultCompany._id;
+    } else {
+      return next(new AppError('No company associated with this account', 404));
+    }
   }
 
   const company = await Company.findById(companyId).select('companyName logo primaryColor secondaryColor');
@@ -183,3 +202,42 @@ export const getCompanySettings = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * @route   GET /api/admin/dashboard/stats
+ * @desc    Get aggregated real dashboard stats
+ * @access  Private
+ */
+export const getDashboardStats = catchAsync(async (req, res, next) => {
+  let companyId = req.user.companyId;
+  if (!companyId) {
+    const defaultCompany = await Company.findOne();
+    if (defaultCompany) companyId = defaultCompany._id;
+  }
+
+  const [totalGallery, totalQuotes, pendingQuotes, totalInquiries, unreadInquiries, company, recentQuotes, recentInquiries] = await Promise.all([
+    Gallery.countDocuments(companyId ? { companyId } : {}),
+    Quote.countDocuments(),
+    Quote.countDocuments({ status: 'pending' }),
+    Contact.countDocuments(companyId ? { companyId } : {}),
+    Contact.countDocuments({ ...(companyId ? { companyId } : {}), isRead: false }),
+    Company.findById(companyId),
+    Quote.find().sort({ createdAt: -1 }).limit(5),
+    Contact.find(companyId ? { companyId } : {}).sort({ createdAt: -1 }).limit(5)
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      stats: {
+        totalGallery,
+        totalQuotes,
+        pendingQuotes,
+        totalInquiries,
+        unreadInquiries
+      },
+      company,
+      recentQuotes,
+      recentInquiries
+    }
+  });
+});
