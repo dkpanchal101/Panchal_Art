@@ -76,8 +76,7 @@ const companySchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes
-companySchema.index({ email: 1 });
+// Indexes (email already indexed via unique: true)
 companySchema.index({ companyName: 1 });
 
 // Virtual for full address
