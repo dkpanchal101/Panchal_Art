@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const toggleVisibility = () => {
-      if (window.pageYOffset > 300) {
+      if (window.scrollY > 300) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -24,16 +25,23 @@ const ScrollToTop = () => {
     });
   };
 
-  if (!isVisible) return null;
-
   return (
-    <button
-      onClick={scrollToTop}
-      className="fixed bottom-6 left-6 z-50 bg-primary hover:bg-primary/90 text-primary-contrast p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
-      aria-label="Scroll to top"
-    >
-      <ArrowUp className="w-5 h-5 group-hover:-translate-y-1 transition-transform duration-300" />
-    </button>
+    <AnimatePresence>
+      {isVisible && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={scrollToTop}
+          className="fixed bottom-6 left-6 z-40 w-11 h-11 bg-slate-900/90 border border-slate-800 hover:border-gold/40 text-gold rounded-full flex items-center justify-center shadow-lg backdrop-blur-md transition-colors"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </motion.button>
+      )}
+    </AnimatePresence>
   );
 };
 

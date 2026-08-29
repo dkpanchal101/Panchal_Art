@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle, Sparkles, MessageCircle, ChevronRight } from 'lucide-react';
 import { API_ENDPOINTS, getCompanyId } from '../config/api';
+import Reveal from '../components/ui/Reveal';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -14,7 +16,6 @@ const Contact = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [companyId, setCompanyId] = useState<string>('');
 
-  // Fetch company ID on component mount
   useEffect(() => {
     const fetchCompanyId = async () => {
       const id = await getCompanyId();
@@ -36,14 +37,12 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // Get company ID (from env or fetch from backend)
       let currentCompanyId = companyId;
       if (!currentCompanyId) {
         currentCompanyId = await getCompanyId();
         setCompanyId(currentCompanyId);
       }
 
-      // Validate Company ID is set
       if (!currentCompanyId) {
         alert('Error: Unable to get Company ID. Please try again or contact the administrator.');
         console.error('Company ID could not be retrieved');
@@ -51,7 +50,6 @@ const Contact = () => {
         return;
       }
 
-      // Map service name to backend format
       const serviceMap: { [key: string]: string } = {
         'Radium Cutting & Custom Design': 'radium-cutting',
         'Stylish Name Printing & Lettering': 'printing',
@@ -67,29 +65,22 @@ const Contact = () => {
         service: serviceMap[formData.service] || formData.service.toLowerCase().replace(/\s+/g, '-')
       };
 
-      // Log the API endpoint for debugging
-      console.log('Submitting to:', API_ENDPOINTS.CONTACT);
-      console.log('Payload:', payload);
-      console.log('API Base URL:', (import.meta as any).env?.VITE_API_BASE_URL || 'Using default');
-      console.log('Company ID:', currentCompanyId);
-
       const response = await fetch(API_ENDPOINTS.CONTACT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-        mode: 'cors', // Explicitly set CORS mode
+        mode: 'cors',
       });
 
-      // Check if response is ok before parsing JSON
       let data;
       const contentType = response.headers.get('content-type');
       
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
         console.error('Non-JSON response:', text);
-        throw new Error(`Server returned non-JSON response. Status: ${response.status}. Response: ${text.substring(0, 100)}`);
+        throw new Error(`Server returned non-JSON response. Status: ${response.status}`);
       }
 
       try {
@@ -109,11 +100,8 @@ const Contact = () => {
           message: ''
         });
       } else {
-        // Handle validation errors
         console.error('Form submission failed:', data);
-        
         if (data.errors && Array.isArray(data.errors)) {
-          // Show specific validation errors
           const errorMessages = data.errors.map(err => err.msg).join('\n');
           alert(`Validation Errors:\n${errorMessages}`);
         } else {
@@ -122,18 +110,11 @@ const Contact = () => {
       }
     } catch (error) {
       console.error('Network error:', error);
-      console.error('Error details:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        apiUrl: API_ENDPOINTS.CONTACT,
-        companyId: companyId || 'NOT SET'
-      });
-      
-      // Show more detailed error message
       const errorMessage = error instanceof Error 
         ? error.message 
         : 'Network error. Please check your connection and try again.';
       
-      alert(`Error: ${errorMessage}\n\nPlease check:\n1. Backend is running at: ${API_ENDPOINTS.CONTACT}\n2. CORS is configured correctly\n3. Company ID is set`);
+      alert(`Error: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -141,32 +122,32 @@ const Contact = () => {
 
   const contactInfo = [
     {
-      icon: <MapPin className="w-6 h-6 text-primary" />,
-      title: "Visit Our Studio",
-      content: "In front of Railway Station, Thasara, 388250",
-      subtext: "Open for consultations by appointment"
+      icon: <MapPin className="w-5 h-5 text-gold" />,
+      title: "Headquarters & Workshop",
+      content: "In front of Railway Station, Thasara - 388250, Gujarat",
+      subtext: "Open for consultations & site measurements"
     },
     {
-      icon: <Phone className="w-6 h-6 text-primary" />,
-      title: "Call Us",
+      icon: <Phone className="w-5 h-5 text-gold" />,
+      title: "Direct Telephone",
       content: "+91 9426362542",
-      subtext: "Available for urgent inquiries"
+      subtext: "Mon - Sat: 9:00 AM to 7:00 PM"
     },
     {
-      icon: <Mail className="w-6 h-6 text-primary" />,
-      title: "Email Us",
+      icon: <Mail className="w-5 h-5 text-gold" />,
+      title: "Electronic Inquiries",
       content: "dkpanchal2023@gmail.com",
-      subtext: "We'll respond within 24 hours"
+      subtext: "Technical specs & quotation requests"
     },
     {
-      icon: <Clock className="w-6 h-6 text-primary" />,
-      title: "Working Hours",
-      content: "Mon - Sat: 9:00 AM - 7:00 PM",
+      icon: <Clock className="w-5 h-5 text-gold" />,
+      title: "Operating Hours",
+      content: "Monday - Saturday: 9:00 AM - 7:00 PM",
       subtext: "Sunday: 10:00 AM - 4:00 PM"
     }
   ];
 
-  const services = [
+  const servicesList = [
     "Radium Cutting & Custom Design",
     "Stylish Name Printing & Lettering",
     "Multi-color Radium Boards & Cutting",
@@ -177,216 +158,266 @@ const Contact = () => {
 
   return (
     <div className="pt-20">
-      {/* Hero Section */}
-      <section className="py-16 bg-gradient-to-br from-primary/10 to-accent/10">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-text mb-6">
-              Contact Us
+      
+      {/* Rich Architectural Hero Banner */}
+      <section className="relative py-20 md:py-28 bg-slate-900 text-white overflow-hidden border-b border-slate-800">
+        
+        {/* Background Image Vignette Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/hero_section_img.png"
+            alt=""
+            className="w-full h-full object-cover opacity-20 filter contrast-125"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-900/80"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-transparent to-slate-900"></div>
+          
+          {/* Architectural Subtle Grid Overlay */}
+          <div 
+            className="absolute inset-0 opacity-[0.05]" 
+            style={{
+              backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
+              backgroundSize: '40px 40px'
+            }}
+          ></div>
+
+          {/* Ambient Gold Glow Spotlight */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold/15 rounded-full blur-[140px] pointer-events-none"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          
+          {/* Breadcrumb Path */}
+          <Reveal>
+            <div className="flex items-center justify-center space-x-2 text-xs font-semibold text-slate-300 mb-6">
+              <Link to="/" className="hover:text-gold transition-colors">Home</Link>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-gold font-bold">Contact Us</span>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.05}>
+            <span className="eyebrow-pill mb-4 shadow-xl">
+              <Sparkles className="w-3.5 h-3.5" /> Direct Consultation
+            </span>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <h1 className="font-heading text-4xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+              Connect With Our <span className="gold-text-gradient">Fabrication Engineers</span>
             </h1>
-            <p className="text-xl text-muted mb-8">
-              Ready to bring your vision to life? Get in touch with our team today
+          </Reveal>
+
+          <Reveal delay={0.15}>
+            <p className="text-base sm:text-xl text-slate-200 max-w-3xl mx-auto leading-relaxed font-normal">
+              Send us your project specifications for instant technical assessment, material options, and a detailed cost quotation.
             </p>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* Contact Form & Info */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-12">
-              {/* Contact Form */}
-              <div className="bg-card rounded-lg shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-text mb-6">Send Us a Message</h2>
-                
-                {isSubmitted ? (
-                  <div className="text-center py-8">
-                    <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-text mb-2">Message Sent!</h3>
-                    <p className="text-muted">
-                      Thank you for contacting us. We'll get back to you within 24 hours.
-                    </p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-text mb-2">
-                          Full Name *
-                        </label>
-                        <input
-                          type="text"
-                          id="name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          required
-                          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300"
-                          placeholder="Your full name"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="phone" className="block text-sm font-medium text-text mb-2">
-                          Phone Number *
-                        </label>
-                        <input
-                          type="tel"
-                          id="phone"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          required
-                          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300"
-                          placeholder="+91 9426362542"
-                        />
-                      </div>
-                    </div>
-                    
+      {/* Main Content Grid */}
+      <section className="py-20 md:py-28 bg-stone border-b border-slate-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-12 gap-12">
+            
+            {/* Contact Form Column (7 cols) */}
+            <div className="lg:col-span-7 bg-white rounded-3xl p-8 sm:p-10 border border-slate-200/80 shadow-subtle">
+              <h2 className="font-heading text-2xl font-extrabold text-slate-900 mb-2">
+                Submit Consultation Request
+              </h2>
+              <p className="text-slate-600 text-xs sm:text-sm mb-8 font-normal">
+                Fill out the required fields below to receive a customized project proposal.
+              </p>
+
+              {isSubmitted ? (
+                <div className="text-center py-16 bg-stone rounded-2xl border border-slate-200 p-8">
+                  <CheckCircle className="w-14 h-14 text-gold mx-auto mb-4" />
+                  <h3 className="font-heading font-extrabold text-2xl text-slate-900 mb-2">Request Received</h3>
+                  <p className="text-slate-700 text-sm max-w-md mx-auto">
+                    Thank you for reaching out to Panchal Art. One of our project managers will review your submission and contact you within 24 hours.
+                  </p>
+                  <button 
+                    onClick={() => setIsSubmitted(false)}
+                    className="btn-primary text-xs mt-6"
+                  >
+                    Submit Another Request
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-text mb-2">
-                        Email Address *
+                      <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                        Full Name *
                       </label>
                       <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300"
-                        placeholder="your.email@example.com"
+                        className="w-full px-4 py-3 rounded-xl bg-stone border border-slate-200 text-slate-900 text-sm focus:border-gold focus:ring-1 focus:ring-gold transition-all outline-none"
+                        placeholder="John Doe"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="service" className="block text-sm font-medium text-text mb-2">
-                        Service Interested In
+                      <label htmlFor="phone" className="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                        Phone Number *
                       </label>
-                      <select
-                        id="service"
-                        name="service"
-                        value={formData.service}
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300"
-                      >
-                        <option value="">Select a service *</option>
-                        {services.map((service, index) => (
-                          <option key={index} value={service}>{service}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-text mb-2">
-                        Message *
-                      </label>
-                      <textarea
-                        id="message"
-                        name="message"
-                        value={formData.message}
-                        onChange={handleInputChange}
-                        required
-                        rows={4}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300"
-                        placeholder="Tell us about your project requirements..."
+                        className="w-full px-4 py-3 rounded-xl bg-stone border border-slate-200 text-slate-900 text-sm focus:border-gold focus:ring-1 focus:ring-gold transition-all outline-none"
+                        placeholder="+91 9426362542"
                       />
                     </div>
+                  </div>
 
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full bg-primary text-primary-contrast px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors duration-300 flex items-center justify-center disabled:opacity-50"
+                  <div>
+                    <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-3 rounded-xl bg-stone border border-slate-200 text-slate-900 text-sm focus:border-gold focus:ring-1 focus:ring-gold transition-all outline-none"
+                      placeholder="john@example.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="service" className="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                      Service Category *
+                    </label>
+                    <select
+                      id="service"
+                      name="service"
+                      value={formData.service}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-3 rounded-xl bg-stone border border-slate-200 text-slate-900 text-sm focus:border-gold focus:ring-1 focus:ring-gold transition-all outline-none"
                     >
-                      {isSubmitting ? (
-                        <div className="w-6 h-6 border-2 border-primary-contrast border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <>
-                          <Send className="w-5 h-5 mr-2" />
-                          Send Message
-                        </>
-                      )}
-                    </button>
+                      <option value="">Select a service category *</option>
+                      {servicesList.map((srv, idx) => (
+                        <option key={idx} value={srv}>{srv}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                    <p className="text-xs text-muted text-center">
-                      By submitting this form, you agree to our privacy policy. We don't store personal data without your consent.
-                    </p>
-                  </form>
-                )}
-              </div>
+                  <div>
+                    <label htmlFor="message" className="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                      Project Specifications & Message *
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      required
+                      rows={5}
+                      className="w-full px-4 py-3 rounded-xl bg-stone border border-slate-200 text-slate-900 text-sm focus:border-gold focus:ring-1 focus:ring-gold transition-all outline-none"
+                      placeholder="Describe dimensions, location, material preference, or special requirements..."
+                    />
+                  </div>
 
-              {/* Contact Information */}
-              <div>
-                <h2 className="text-2xl font-bold text-text mb-8">Get in Touch</h2>
-                <div className="space-y-6 mb-8">
-                  {contactInfo.map((info, index) => (
-                    <div key={index} className="flex items-start space-x-4">
-                      <div className="flex-shrink-0">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="btn-primary w-full py-4 text-xs flex items-center justify-center disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        <span>Submit Project Inquiry</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* Information Column (5 cols) */}
+            <div className="lg:col-span-5 space-y-8">
+              
+              <div className="bg-slate-900 text-white rounded-3xl p-8 border border-slate-800 shadow-card space-y-6">
+                <h2 className="font-heading text-xl font-extrabold text-white border-b border-slate-800 pb-4">
+                  Headquarters Information
+                </h2>
+
+                <div className="space-y-6">
+                  {contactInfo.map((info, idx) => (
+                    <div key={idx} className="flex items-start space-x-4">
+                      <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl flex-shrink-0">
                         {info.icon}
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-text mb-1">
+                        <h3 className="font-heading font-bold text-sm text-slate-100">
                           {info.title}
                         </h3>
-                        <p className="text-text mb-1">
+                        <p className="text-gold text-xs font-bold mt-0.5">
                           {info.content}
                         </p>
-                        <p className="text-muted text-sm">
+                        <p className="text-slate-300 text-xs mt-1 font-normal">
                           {info.subtext}
                         </p>
                       </div>
                     </div>
                   ))}
                 </div>
+              </div>
 
-                {/* Quick Contact Options */}
-                <div className="bg-primary/10 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-text mb-4">
-                    Need Immediate Assistance?
-                  </h3>
-                  <div className="space-y-3">
-                    <a
-                      href="tel:+919426362542"
-                      className="flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
-                    >
-                      <Phone className="w-5 h-5 mr-2" />
-                      Call Now: +91 9426362542
-                    </a>
-                    <a
-                      href="https://wa.me/919876543210"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-accent hover:text-accent/80 transition-colors duration-300"
-                    >
-                      <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
-                      </svg>
-                      WhatsApp Us
-                    </a>
-                    <a
-                      href="mailto:hello@panchalart.com"
-                      className="flex items-center text-muted hover:text-text transition-colors duration-300"
-                    >
-                      <Mail className="w-5 h-5 mr-2" />
-                      Email Us
-                    </a>
-                  </div>
-                </div>
-
-                {/* Map Placeholder */}
-                <div className="mt-8 bg-gray-200 rounded-lg h-64 flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <MapPin className="w-12 h-12 mx-auto mb-2" />
-                    <p>Interactive Map</p>
-                    <p className="text-sm">In front of Railway Station, Thasara, 388250</p>
-                  </div>
+              {/* Instant WhatsApp Quick Card */}
+              <div className="bg-slate-900 rounded-3xl p-6 border border-slate-800 text-white">
+                <h3 className="font-heading font-bold text-sm text-white mb-2 flex items-center">
+                  <MessageCircle className="w-4 h-4 text-emerald-400 mr-2" /> Immediate Assistance
+                </h3>
+                <p className="text-slate-300 text-xs mb-4 font-normal">
+                  Need urgent quotes or site measurements in Gujarat? Connect directly via phone or WhatsApp.
+                </p>
+                <div className="flex gap-3">
+                  <a
+                    href="tel:+919426362542"
+                    className="flex-1 py-2.5 text-center bg-slate-850 hover:bg-slate-800 text-slate-100 rounded-xl text-xs font-bold uppercase tracking-wider border border-slate-800"
+                  >
+                    Call Studio
+                  </a>
+                  <a
+                    href="https://wa.me/919426362542"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2.5 text-center bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider"
+                  >
+                    WhatsApp
+                  </a>
                 </div>
               </div>
+
+              {/* Location Map Placeholder */}
+              <div className="bg-slate-900 rounded-3xl p-6 border border-slate-800 text-center">
+                <MapPin className="w-8 h-8 text-gold mx-auto mb-2" />
+                <p className="font-heading font-bold text-white text-sm">Thasara Workshop Location</p>
+                <p className="text-slate-300 text-xs mt-1 font-normal">In front of Railway Station, Thasara-388250, Gujarat</p>
+              </div>
+
             </div>
+
           </div>
         </div>
       </section>
+
     </div>
   );
 };

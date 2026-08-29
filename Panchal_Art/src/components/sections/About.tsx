@@ -1,105 +1,146 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Award, ArrowRight } from 'lucide-react';
+import { ArrowRight, History } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Reveal from '../ui/Reveal';
+import AnimatedCounter from '../ui/AnimatedCounter';
 
 const About = () => {
-  return (
-    <section className="py-16 bg-bg-secondary">
-      <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Content */}
-          <div>
-            <Reveal>
-              <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
-                About Us
-              </span>
-            </Reveal>
-            <Reveal delay={0.05}>
-              <h2 className="text-4xl font-bold text-text mb-6">
-                Three Generations of Craftsmanship Excellence
-              </h2>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <p className="text-muted text-lg mb-6">
-                Panchal Art began as a small family workshop with a simple mission: to bring creative visions to life through exceptional craftsmanship. What started with traditional sign-making has evolved into a comprehensive design studio, but our commitment to quality and personal service remains unchanged.
-              </p>
-            </Reveal>
-            <Reveal delay={0.15}>
-              <p className="text-muted text-lg mb-8">
-                Today, we specialize in radium cutting, custom lettering, car glass films, and digital design. Every project reflects our dedication to precision, creativity, and customer satisfaction. We're not just service providers – we're your partners in making your brand shine.
-              </p>
-            </Reveal>
+  const milestones = [
+    {
+      year: "1985",
+      title: "Hand-Lettering Workshop Founded",
+      description: "Established in Gujarat with traditional sign painting craftsmanship and custom lettering techniques."
+    },
+    {
+      year: "2005",
+      title: "Radium Laser & CNC Modernization",
+      description: "Pioneered high-accuracy retro-reflective radium cutting and CNC acrylic board fabrication."
+    },
+    {
+      year: "2025",
+      title: "Automotive Solar & Corporate Fleets",
+      description: "Expanded into executive solar control tinting, high-DPI banners, and nationwide brand identity deployments."
+    }
+  ];
 
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              <Reveal>
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <Users className="w-6 h-6 text-primary" />
+  return (
+    <section className="py-12 md:py-16 bg-stone relative overflow-hidden border-b border-slate-200/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <Reveal>
+            <span className="eyebrow-pill mb-3">
+              <History className="w-3.5 h-3.5 text-gold" /> Corporate Heritage
+            </span>
+          </Reveal>
+
+          <Reveal delay={0.05}>
+            <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight mb-3">
+              Four Decades of Craftsmanship Lineage
+            </h2>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+              Merging hand-finished traditional accuracy with industrial laser cutting and high-performance materials.
+            </p>
+          </Reveal>
+        </div>
+
+        {/* Editorial Timeline & Image Collage Grid */}
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          
+          {/* Left Column: Timeline Axis (7 cols) */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="relative pl-6 sm:pl-8 border-l-2 border-slate-300/80 space-y-6">
+              {milestones.map((item, idx) => (
+                <Reveal key={idx} delay={idx * 0.08}>
+                  <div className="relative group">
+                    {/* Node Circle */}
+                    <div className="absolute -left-[31px] sm:-left-[39px] top-1.5 w-4 h-4 rounded-full bg-gold border-2 border-slate-900 group-hover:scale-125 transition-transform duration-300"></div>
+                    
+                    <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-subtle group-hover:border-gold/50 transition-colors">
+                      <span className="font-heading text-[11px] font-bold uppercase tracking-wider text-gold bg-gold/15 border border-gold/30 px-2.5 py-0.5 rounded-md inline-block mb-2">
+                        {item.year}
+                      </span>
+                      <h3 className="font-heading font-extrabold text-slate-900 text-base sm:text-lg mb-1">
+                        {item.title}
+                      </h3>
+                      <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-text">Family-Run Business</h3>
-                    <p className="text-muted text-sm">Three generations of expertise</p>
-                  </div>
-                </div>
-              </Reveal>
-              <Reveal delay={0.05}>
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <Award className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-text">Quality Assured</h3>
-                    <p className="text-muted text-sm">40+ years of excellence</p>
-                  </div>
-                </div>
-              </Reveal>
+                </Reveal>
+              ))}
             </div>
 
-            <Reveal delay={0.1}>
-              <Link
-                to="/about"
-                className="inline-flex items-center bg-primary text-primary-contrast px-8 py-4 rounded-lg font-semibold hover:bg-primary/90 transition-colors duration-300"
-              >
-                Learn More About Us
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Link>
+            <Reveal delay={0.25}>
+              <div className="pt-1">
+                <Link to="/about">
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="btn-primary py-3 px-6 text-xs"
+                  >
+                    <span>Read Full Company Story</span>
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </motion.button>
+                </Link>
+              </div>
             </Reveal>
           </div>
 
-          {/* Image */}
-          <div className="relative">
+          {/* Right Column: Harmonized Image & Soft Stat Card (5 cols) */}
+          <div className="lg:col-span-5 relative">
             <Reveal>
-              <div className="relative rounded-lg overflow-hidden shadow-xl">
-                <img
-                  src="/hero_section_img.png"
-                  alt="Master craftsman working on custom design"
-                  className="w-full h-96 object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-              </div>
-            </Reveal>
-            
-            {/* Floating card */}
-            <Reveal delay={0.1}>
-              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-lg shadow-lg max-w-xs">
-                <div className="flex items-center space-x-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">40+</div>
-                    <div className="text-sm text-muted">Years</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">1000+</div>
-                    <div className="text-sm text-muted">Projects</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">500+</div>
-                    <div className="text-sm text-muted">Clients</div>
-                  </div>
+              <div className="relative">
+                
+                {/* Main Workshop Background Image */}
+                <div className="rounded-2xl overflow-hidden shadow-xl border border-slate-200/90 bg-slate-900">
+                  <img
+                    src="/hero_section_img.png"
+                    alt="Craftsmanship workshop showcase"
+                    className="w-full h-80 sm:h-[380px] object-cover opacity-95 filter contrast-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
                 </div>
+
+                {/* Overlapping Harmonized Stat Card */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="absolute -bottom-6 -left-4 right-4 p-4 bg-white/95 backdrop-blur-xl rounded-xl border border-slate-200/90 shadow-xl text-slate-900"
+                >
+                  <div className="grid grid-cols-3 gap-2 text-center divide-x divide-slate-200">
+                    <div>
+                      <div className="font-heading text-xl font-extrabold text-slate-900">
+                        <AnimatedCounter value="40+" />
+                      </div>
+                      <div className="text-[10px] font-bold text-gold uppercase tracking-wider">Years</div>
+                    </div>
+                    <div>
+                      <div className="font-heading text-xl font-extrabold text-slate-900">
+                        <AnimatedCounter value="1,000+" />
+                      </div>
+                      <div className="text-[10px] font-bold text-gold uppercase tracking-wider">Projects</div>
+                    </div>
+                    <div>
+                      <div className="font-heading text-xl font-extrabold text-slate-900">
+                        <AnimatedCounter value="500+" />
+                      </div>
+                      <div className="text-[10px] font-bold text-gold uppercase tracking-wider">Clients</div>
+                    </div>
+                  </div>
+                </motion.div>
+
               </div>
             </Reveal>
           </div>
+
         </div>
       </div>
     </section>
