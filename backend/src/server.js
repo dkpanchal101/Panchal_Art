@@ -20,20 +20,15 @@ import { globalErrorHandler, notFound } from './middleware/errorHandler.js';
 import Admin from './models/Admin.js';
 import Company from './models/Company.js';
 
-// ES module dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables
 dotenv.config();
 
-// Initialize express app
 const app = express();
 
-// Connect to MongoDB
 connectDB();
 
-// Create default admin and company on startup
 Admin.createDefaultAdmin().catch(err => {
   console.error('Error creating default admin:', err);
 });
@@ -42,13 +37,14 @@ Company.createDefaultCompany().catch(err => {
   console.error('Error creating default company:', err);
 });
 
-// Security middleware
-app.use(helmet());
+// Configure Helmet to allow cross-origin image loading from /uploads
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
-// Rate limiting - general
 const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 200,
   message: {
     success: false,
     error: 'Too many requests from this IP, please try again later.'
@@ -57,71 +53,37 @@ const generalLimiter = rateLimit({
   legacyHeaders: false
 });
 
-// Rate limiting - stricter for public endpoints
 const publicLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // limit each IP to 50 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: {
     success: false,
     error: 'Too many requests from this IP, please try again later.'
   }
 });
 
-// Apply general rate limiting
 app.use('/api', generalLimiter);
 
-// CORS configuration - support multiple origins
-const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  'http://localhost:5173',
-  'https://panchalart.vercel.app',
-  'https://*.vercel.app' // Allow all Vercel preview deployments
-].filter(Boolean); // Remove undefined values
-
+// Enable CORS for public site (5173) and admin portal (3001)
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list
-    if (allowedOrigins.some(allowed => {
-      if (allowed.includes('*')) {
-        // Handle wildcard patterns
-        const pattern = allowed.replace('*', '.*');
-        return new RegExp(pattern).test(origin);
-      }
-      return origin === allowed;
-    })) {
-      callback(null, true);
-    } else {
-      // For development, allow all origins
-      if (process.env.NODE_ENV === 'development') {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    }
-  },
+  origin: true, // Allow all origins in development
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Logging middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 } else {
   app.use(morgan('combined'));
 }
 
-// Static files (for uploaded images)
+// Serve static upload directory for gallery images and logos
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
@@ -131,7 +93,6 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Get company ID endpoint (for setup purposes)
 app.get('/api/setup/company-id', async (req, res) => {
   try {
     const company = await Company.findOne().sort({ createdAt: 1 });
@@ -157,29 +118,15 @@ app.get('/api/setup/company-id', async (req, res) => {
   }
 });
 
-// API Routes
-// Public routes with stricter rate limiting
 app.use('/api/public', publicLimiter, publicRoutes);
-
-// Quote routes (public POST for submitting quotes, protected GET/PUT/DELETE for admin)
 app.use('/api/quotes', quoteRoutes);
-
-// Gallery routes (public GET, protected POST)
 app.use('/api/gallery', galleryRoutes);
-
-// Admin authentication routes
 app.use('/api/admin/auth', authRoutes);
-
-// Admin routes (protected)
 app.use('/api/admin', adminRoutes);
 
-// 404 handler - catch all unmatched routes
 app.use(notFound);
-
-// Global error handler
 app.use(globalErrorHandler);
 
-// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);

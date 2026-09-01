@@ -4,12 +4,20 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const connectDB = async () => {
+  const uri = process.env.MONGODB_URI;
+
+  if (!uri) {
+    console.error('❌ MONGODB_URI is not set in .env');
+    process.exit(1);
+  }
+
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      // Remove deprecated options - these are now defaults in Mongoose 6+
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 15000,
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    console.log(`📦 Database: ${conn.connection.name}`);
     
     // Handle connection events
     mongoose.connection.on('error', (err) => {

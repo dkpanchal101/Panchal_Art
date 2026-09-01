@@ -1,29 +1,36 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { validationResult } from 'express-validator';
 import Gallery from '../models/Gallery.js';
+import Company from '../models/Company.js';
 import { AppError, catchAsync } from '../middleware/errorHandler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
+ * Helper to get active companyId for current admin user
+ */
+const getActiveCompanyId = async (req) => {
+  if (req.user && req.user.companyId) {
+    return req.user.companyId;
+  }
+  const defaultCompany = await Company.findOne().sort({ createdAt: 1 });
+  return defaultCompany ? defaultCompany._id : null;
+};
+
+/**
  * @route   GET /api/admin/gallery
- * @desc    Get all gallery images for admin's company (paginated)
+ * @desc    Get all gallery images for admin
  * @access  Private
  */
 export const getAllGallery = catchAsync(async (req, res, next) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
   const category = req.query.category;
   const isPublished = req.query.isPublished;
 
-  // Build query
-  const query = { companyId: req.user.companyId };
+  const query = {};
   
-  if (category) {
+  if (category && category !== 'all' && category !== 'ALL WORK' && category !== 'All Work') {
     query.category = category;
   }
   
@@ -31,67 +38,43 @@ export const getAllGallery = catchAsync(async (req, res, next) => {
     query.isPublished = isPublished === 'true';
   }
 
-  // Get total count
-  const total = await Gallery.countDocuments(query);
-
-  // Get gallery items
+  // Fetch all gallery items from database
   const gallery = await Gallery.find(query)
     .populate('createdBy', 'fullName email')
-    .sort({ displayOrder: 1, createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
+    .sort({ displayOrder: 1, createdAt: -1 });
 
   res.status(200).json({
     success: true,
     data: {
       gallery,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
+      count: gallery.length
     }
   });
 });
 
 /**
  * @route   POST /api/admin/gallery
- * @desc    Upload new gallery image
+ * @desc    Upload new gallery image (local disk storage)
  * @access  Private
  */
 export const createGallery = catchAsync(async (req, res, next) => {
-  // Check validation errors
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      errors: errors.array()
-    });
-  }
-
   if (!req.file) {
     return next(new AppError('Please upload an image file', 400));
   }
 
   const { title, description, category, displayOrder, isPublished } = req.body;
 
-  // Validate category
-  const validCategories = ['radium-cutting', 'printing', 'banners', 'car-glass', 'logo-design', 'boards'];
-  if (!validCategories.includes(category)) {
-    return next(new AppError('Invalid category', 400));
-  }
+  const companyId = await getActiveCompanyId(req);
 
-  // Create gallery item
   const gallery = await Gallery.create({
-    companyId: req.user.companyId,
-    title,
-    description,
+    companyId: companyId || undefined,
+    title: (title && title.trim()) ? title.trim() : 'Custom Signage Project',
+    description: description ? description.trim() : '',
     imageUrl: req.file.path,
-    category,
-    displayOrder: displayOrder || 0,
-    isPublished: isPublished === 'true' || isPublished === true,
-    createdBy: req.user.id
+    category: (category && category.trim()) ? category.trim() : 'General',
+    displayOrder: displayOrder ? parseInt(displayOrder) : 0,
+    isPublished: isPublished === 'false' ? false : true,
+    createdBy: req.user._id || req.user.id
   });
 
   await gallery.populate('createdBy', 'fullName email');
@@ -110,10 +93,7 @@ export const createGallery = catchAsync(async (req, res, next) => {
  * @access  Private
  */
 export const getGalleryById = catchAsync(async (req, res, next) => {
-  const gallery = await Gallery.findOne({
-    _id: req.params.id,
-    companyId: req.user.companyId
-  }).populate('createdBy', 'fullName email');
+  const gallery = await Gallery.findById(req.params.id).populate('createdBy', 'fullName email');
 
   if (!gallery) {
     return next(new AppError('Gallery image not found', 404));
@@ -133,19 +113,7 @@ export const getGalleryById = catchAsync(async (req, res, next) => {
  * @access  Private
  */
 export const updateGallery = catchAsync(async (req, res, next) => {
-  // Check validation errors
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      errors: errors.array()
-    });
-  }
-
-  const gallery = await Gallery.findOne({
-    _id: req.params.id,
-    companyId: req.user.companyId
-  });
+  const gallery = await Gallery.findById(req.params.id);
 
   if (!gallery) {
     return next(new AppError('Gallery image not found', 404));
@@ -153,23 +121,14 @@ export const updateGallery = catchAsync(async (req, res, next) => {
 
   const { title, description, category, displayOrder, isPublished } = req.body;
 
-  // Update fields
-  if (title) gallery.title = title;
-  if (description !== undefined) gallery.description = description;
-  if (category) {
-    const validCategories = ['radium-cutting', 'printing', 'banners', 'car-glass', 'logo-design', 'boards'];
-    if (!validCategories.includes(category)) {
-      return next(new AppError('Invalid category', 400));
-    }
-    gallery.category = category;
-  }
-  if (displayOrder !== undefined) gallery.displayOrder = displayOrder;
+  if (title !== undefined) gallery.title = title.trim();
+  if (description !== undefined) gallery.description = description.trim();
+  if (category !== undefined && category.trim()) gallery.category = category.trim();
+  if (displayOrder !== undefined) gallery.displayOrder = parseInt(displayOrder);
   if (isPublished !== undefined) gallery.isPublished = isPublished === 'true' || isPublished === true;
 
-  // Handle new image upload if provided
   if (req.file) {
-    // Delete old image file
-    if (gallery.imageUrl) {
+    if (gallery.imageUrl && !gallery.imageUrl.startsWith('http')) {
       const oldImagePath = path.join(__dirname, '../..', gallery.imageUrl);
       if (fs.existsSync(oldImagePath)) {
         fs.unlinkSync(oldImagePath);
@@ -195,17 +154,13 @@ export const updateGallery = catchAsync(async (req, res, next) => {
  * @access  Private
  */
 export const deleteGallery = catchAsync(async (req, res, next) => {
-  const gallery = await Gallery.findOne({
-    _id: req.params.id,
-    companyId: req.user.companyId
-  });
+  const gallery = await Gallery.findById(req.params.id);
 
   if (!gallery) {
     return next(new AppError('Gallery image not found', 404));
   }
 
-  // Delete image file
-  if (gallery.imageUrl) {
+  if (gallery.imageUrl && !gallery.imageUrl.startsWith('http')) {
     const imagePath = path.join(__dirname, '../..', gallery.imageUrl);
     if (fs.existsSync(imagePath)) {
       fs.unlinkSync(imagePath);
@@ -226,10 +181,7 @@ export const deleteGallery = catchAsync(async (req, res, next) => {
  * @access  Private
  */
 export const togglePublish = catchAsync(async (req, res, next) => {
-  const gallery = await Gallery.findOne({
-    _id: req.params.id,
-    companyId: req.user.companyId
-  });
+  const gallery = await Gallery.findById(req.params.id);
 
   if (!gallery) {
     return next(new AppError('Gallery image not found', 404));
@@ -253,7 +205,8 @@ export const togglePublish = catchAsync(async (req, res, next) => {
  * @access  Private
  */
 export const getGalleryStats = catchAsync(async (req, res, next) => {
-  const stats = await Gallery.getStats(req.user.companyId);
+  const companyId = await getActiveCompanyId(req);
+  const stats = await Gallery.getStats(companyId);
 
   res.status(200).json({
     success: true,
@@ -262,4 +215,3 @@ export const getGalleryStats = catchAsync(async (req, res, next) => {
     }
   });
 });
-

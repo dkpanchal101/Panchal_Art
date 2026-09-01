@@ -63,8 +63,7 @@ const adminSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes
-adminSchema.index({ email: 1 });
+// Indexes (email already indexed via unique: true)
 adminSchema.index({ isActive: 1 });
 adminSchema.index({ companyId: 1 });
 adminSchema.index({ role: 1 });
@@ -74,18 +73,12 @@ adminSchema.virtual('isLocked').get(function() {
   return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
-// Pre-save middleware to hash password
-adminSchema.pre('save', async function(next) {
-  // Only run this function if password was actually modified
-  if (!this.isModified('password')) return next();
+// Pre-save middleware to hash password (async — do not use next(); Mongoose 7+)
+adminSchema.pre('save', async function() {
+  if (!this.isModified('password')) return;
 
-  // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
-  
-  // Update password changed timestamp
-  this.passwordChangedAt = Date.now() - 1000; // Subtract 1 second to ensure JWT is issued after password change
-  
-  next();
+  this.passwordChangedAt = Date.now() - 1000;
 });
 
 // Instance method to check password

@@ -10,7 +10,7 @@ const router = express.Router();
 
 /**
  * @route   GET /api/public/gallery/:companyId
- * @desc    Get all published gallery images for a company (by category filter optional)
+ * @desc    Get all published gallery images for a company
  * @access  Public
  */
 router.get('/gallery/:companyId', 
@@ -19,30 +19,22 @@ router.get('/gallery/:companyId',
     const { companyId } = req.params;
     const { category } = req.query;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 100;
     const skip = (page - 1) * limit;
 
-    // Verify company exists
     const company = await Company.findById(companyId);
     if (!company) {
       return next(new AppError('Company not found', 404));
     }
 
-    // Build query
     const query = { companyId, isPublished: true };
     
-    if (category) {
-      const validCategories = ['radium-cutting', 'printing', 'banners', 'car-glass', 'logo-design', 'boards'];
-      if (!validCategories.includes(category)) {
-        return next(new AppError('Invalid category', 400));
-      }
+    if (category && category !== 'all' && category !== 'ALL WORK' && category !== 'All Work') {
       query.category = category;
     }
 
-    // Get total count
     const total = await Gallery.countDocuments(query);
 
-    // Get gallery items
     const gallery = await Gallery.find(query)
       .select('-createdBy -companyId')
       .sort({ displayOrder: 1, createdAt: -1 })
@@ -74,15 +66,13 @@ router.get('/gallery/:companyId/categories',
   catchAsync(async (req, res, next) => {
     const { companyId } = req.params;
 
-    // Verify company exists
     const company = await Company.findById(companyId);
     if (!company) {
       return next(new AppError('Company not found', 404));
     }
 
-    // Get category counts
     const categories = await Gallery.aggregate([
-      { $match: { companyId: companyId, isPublished: true } },
+      { $match: { companyId: company._id, isPublished: true } },
       {
         $group: {
           _id: '$category',
@@ -92,19 +82,9 @@ router.get('/gallery/:companyId/categories',
       { $sort: { _id: 1 } }
     ]);
 
-    // Format response
-    const categoryMap = {
-      'radium-cutting': 'Radium Cutting',
-      'printing': 'Printing',
-      'banners': 'Banners',
-      'car-glass': 'Car Glass',
-      'logo-design': 'Logo Design',
-      'boards': 'Boards'
-    };
-
     const formattedCategories = categories.map(cat => ({
       category: cat._id,
-      displayName: categoryMap[cat._id] || cat._id,
+      displayName: cat._id,
       count: cat.count
     }));
 
@@ -162,18 +142,15 @@ const contactValidation = [
     .normalizeEmail()
     .withMessage('Please provide a valid email'),
   body('phone')
-    .matches(/^[\+]?[0-9\s\-\(\)]{10,15}$/)
-    .withMessage('Please provide a valid phone number'),
+    .optional(),
   body('message')
     .trim()
-    .isLength({ min: 10, max: 1000 })
-    .withMessage('Message must be between 10 and 1000 characters'),
+    .isLength({ min: 5, max: 1000 })
+    .withMessage('Message must be between 5 and 1000 characters'),
   body('service')
-    .isIn(['radium-cutting', 'printing', 'banners', 'car-glass', 'logo-design', 'boards'])
-    .withMessage('Invalid service category')
+    .optional()
 ];
 
 router.post('/contact', contactValidation, submitContact);
 
 export default router;
-

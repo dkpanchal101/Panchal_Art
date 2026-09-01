@@ -1,31 +1,46 @@
-import React from 'react';
-import { MessageCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { MessageCircle, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const WhatsAppButton = () => {
-  const handleWhatsAppClick = () => {
-    const phoneNumber = "7435960733"; // Replace with actual WhatsApp number
-    const message = "Hi! I'm interested in your design services. Can you help me?";
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-  };
+  const [showTooltip, setShowTooltip] = useState(true);
 
   return (
-    <button
-      onClick={handleWhatsAppClick}
-      className="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
-      aria-label="Contact us on WhatsApp"
-    >
-      <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
-      
-      {/* Tooltip */}
-      <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-        Chat with us on WhatsApp
-        <div className="absolute top-full right-2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-      </div>
-      
-      {/* Pulse animation */}
-      <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-75"></div>
-    </button>
+    <div className="fixed bottom-6 right-6 z-40 flex items-center">
+      {/* Tooltip Popup */}
+      <AnimatePresence>
+        {showTooltip && (
+          <motion.div
+            initial={{ opacity: 0, x: 10, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 10, scale: 0.95 }}
+            className="mr-3 bg-slate-900 text-slate-200 border border-slate-800 rounded-2xl px-4 py-2.5 shadow-xl flex items-center text-xs space-x-2"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="font-semibold text-white">Need Quick Signage Advice?</span>
+            <button
+              onClick={() => setShowTooltip(false)}
+              className="text-slate-400 hover:text-white p-0.5"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Action Button */}
+      <motion.a
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.95 }}
+        href="https://wa.me/919426362542"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-14 h-14 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-emerald-600/30 transition-all duration-300 group"
+        aria-label="Contact on WhatsApp"
+      >
+        <MessageCircle className="w-7 h-7 group-hover:rotate-12 transition-transform duration-300" />
+      </motion.a>
+    </div>
   );
 };
 

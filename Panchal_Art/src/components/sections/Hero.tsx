@@ -1,11 +1,13 @@
-import React from 'react';
-import { ArrowRight, Play, Sparkles, Award, Users, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, Play, Sparkles, Award, Users, Clock, Cpu, Layers, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
-import Reveal from '../ui/Reveal';
 import { useNavigate } from 'react-router-dom';
+import Reveal from '../ui/Reveal';
+import AnimatedCounter from '../ui/AnimatedCounter';
 
 const Hero = () => {
   const navigate = useNavigate();
+  const [activeSpec, setActiveSpec] = useState<'radium' | 'cnc' | 'tint'>('radium');
 
   const handleGetQuote = () => {
     const quoteButton = document.querySelector('[data-quote-trigger]') as HTMLElement;
@@ -19,198 +21,274 @@ const Hero = () => {
     window.scrollTo(0, 0);
   };
 
+  const specDetails = {
+    radium: {
+      title: "Radium Laser Cutting",
+      tolerance: "± 0.10 mm",
+      reflectivity: "99.4% Retro-Reflective",
+      material: "3M Microprismatic Vinyl",
+      durability: "7+ Years Outdoor"
+    },
+    cnc: {
+      title: "CNC LED Acrylic Boards",
+      tolerance: "± 0.05 mm Cut",
+      reflectivity: "Multi-layer Backlit",
+      material: "Cast Acrylic & ACP Sheet",
+      durability: "10+ Years Heavy Duty"
+    },
+    tint: {
+      title: "Automotive Solar Tinting",
+      tolerance: "Contour Fitted",
+      reflectivity: "99% UV & 85% IR Barrier",
+      material: "Nano-Ceramic Film",
+      durability: "Lifetime Scratch Shield"
+    }
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] }
+    }
+  };
+
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* Background Image with Fallback */}
+    <section className="relative overflow-hidden bg-slate-900 pt-24 pb-12 md:pt-28 md:pb-16 border-b border-slate-800">
+      
+      {/* Background Vignette & Subtle Architectural Grid */}
       <div className="absolute inset-0 z-0">
-        {/* Try to load the image, with fallback */}
         <img
           src="/hero_section_img.png"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
+          alt="Workshop Heritage"
+          className="absolute inset-0 w-full h-full object-cover opacity-20 filter contrast-125 transition-opacity duration-1000"
           onError={(e) => {
-            // Hide image if it fails to load, fallback gradient will show
             e.currentTarget.style.display = 'none';
           }}
         />
-        {/* Fallback gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-accent/20 to-primary/30"></div>
-        {/* Pattern overlay for texture */}
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }}></div>
-        {/* Overlay gradient for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40"></div>
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-accent/10 animate-pulse"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/95 to-slate-900/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-transparent to-slate-900"></div>
+        
+        <div 
+          className="absolute inset-0 opacity-[0.04]" 
+          style={{
+            backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
+            backgroundSize: '40px 40px'
+          }}
+        ></div>
+
+        <motion.div 
+          animate={{ scale: [1, 1.05, 1], opacity: [0.10, 0.15, 0.10] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -top-40 right-0 w-[450px] h-[450px] bg-gold rounded-full blur-[130px] pointer-events-none"
+        ></motion.div>
       </div>
 
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-20">
-        <div className="max-w-5xl">
-          {/* Badge */}
-          <Reveal>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="mb-6"
-            >
-              <span className="inline-flex items-center gap-2 px-6 py-3 bg-primary/90 backdrop-blur-sm text-primary-contrast rounded-full text-sm font-semibold shadow-lg">
-                <Award className="w-4 h-4" />
-                Trusted Since 2010 • 20+ Years of Excellence
+      {/* Main Content Container */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          
+          {/* Left Column: Headline & Action Area (7 cols) */}
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="lg:col-span-7 space-y-4"
+          >
+            
+            {/* Trust Eyebrow Badge */}
+            <motion.div variants={itemVariants} className="inline-block">
+              <span className="eyebrow-pill shadow-lg text-[11px] py-1 px-3">
+                <span className="w-2 h-2 rounded-full bg-gold animate-ping"></span>
+                <Award className="w-3.5 h-3.5 text-gold" />
+                <span>Established 1985 • 40+ Years Heritage</span>
               </span>
             </motion.div>
-          </Reveal>
 
-          {/* Main Heading */}
-          <Reveal delay={0.1}>
+            {/* Main Headline */}
             <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-6 leading-tight"
+              variants={itemVariants}
+              className="font-heading text-3xl sm:text-5xl md:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] tracking-tight"
             >
-              Crafting Your Vision with
-              <span className="block mt-2 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient">
-                Precision & Style
+              Architectural Signage &
+              <span className="block mt-1 gold-text-gradient font-black">
+                Precision Radium Craft
               </span>
             </motion.h1>
-          </Reveal>
 
-          {/* Description */}
-          <Reveal delay={0.2}>
+            {/* Value Proposition Description */}
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-xl md:text-2xl text-gray-200 mb-10 max-w-3xl leading-relaxed"
+              variants={itemVariants}
+              className="text-xs sm:text-base text-slate-200 max-w-xl leading-relaxed font-normal"
             >
-              From radium cutting to custom designs, we bring your brand to life with exceptional craftsmanship and attention to detail. 
-              <span className="block mt-2 text-primary font-semibold">
-                Your trusted partner in professional signage and design.
-              </span>
+              From custom radium laser cutting and storefront lettering to automotive glass films and LED display boards, we engineer distinctive visual branding for businesses.
             </motion.p>
-          </Reveal>
 
-          {/* CTA Buttons */}
-          <Reveal delay={0.3}>
+            {/* Action Buttons */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 mb-16"
+              variants={itemVariants}
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1"
             >
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handleGetQuote}
-                className="group relative bg-primary text-primary-contrast px-10 py-5 rounded-xl font-semibold text-lg hover:bg-primary/90 transition-all duration-300 flex items-center justify-center shadow-2xl hover:shadow-primary/50 hover:scale-105 overflow-hidden"
+                className="btn-primary py-3 px-6 text-xs group"
               >
-                <span className="relative z-10 flex items-center">
-                  Get Free Quote
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </button>
-              <button
-                onClick={handleViewServices}
-                className="group border-2 border-white/80 text-white px-10 py-5 rounded-xl font-semibold text-lg hover:bg-white hover:text-text transition-all duration-300 flex items-center justify-center backdrop-blur-sm bg-white/10 hover:scale-105"
-              >
-                <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                View Our Services
-              </button>
-            </motion.div>
-          </Reveal>
+                <span>Request Custom Quote</span>
+                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </motion.button>
 
-          {/* Stats */}
-          <Reveal delay={0.4}>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleViewServices}
+                className="btn-secondary py-3 px-6 text-xs group"
+              >
+                <Play className="w-3.5 h-3.5 mr-2 text-gold group-hover:scale-110 transition-transform" />
+                <span>Explore Services</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Executive Metrics Bar */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
+              variants={itemVariants}
+              className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-4 border-t border-slate-800"
             >
               {[
                 { 
-                  icon: <Sparkles className="w-8 h-8 text-primary" />,
-                  value: '1000+', 
-                  label: 'Projects Completed',
-                  color: 'from-primary to-accent'
+                  icon: <Sparkles className="w-3.5 h-3.5 text-gold" />,
+                  value: '1,000+', 
+                  label: 'Projects Delivered'
                 },
                 { 
-                  icon: <Award className="w-8 h-8 text-accent" />,
-                  value: '20+', 
-                  label: 'Years Experience',
-                  color: 'from-accent to-primary'
+                  icon: <Award className="w-3.5 h-3.5 text-gold" />,
+                  value: '40+', 
+                  label: 'Years Heritage'
                 },
                 { 
-                  icon: <Users className="w-8 h-8 text-primary" />,
+                  icon: <Users className="w-3.5 h-3.5 text-gold" />,
                   value: '500+', 
-                  label: 'Happy Clients',
-                  color: 'from-primary to-accent'
+                  label: 'Corporate Clients'
                 },
                 { 
-                  icon: <Clock className="w-8 h-8 text-accent" />,
-                  value: '24h', 
-                  label: 'Quick Response',
-                  color: 'from-accent to-primary'
+                  icon: <Clock className="w-3.5 h-3.5 text-gold" />,
+                  value: '24 Hours', 
+                  label: 'Response Time'
                 },
-              ].map((stat, i) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 1 + i * 0.1 }}
-                  className="group relative bg-white/10 backdrop-blur-md rounded-2xl p-6 text-center border border-white/20 hover:border-primary/50 transition-all duration-300 hover:scale-105 hover:bg-white/15"
-                >
-                  <div className="flex justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+              ].map((stat, idx) => (
+                <div key={idx} className="bg-slate-850 p-2.5 rounded-xl border border-slate-800">
+                  <div className="flex items-center space-x-1 mb-0.5">
                     {stat.icon}
                   </div>
-                  <div className={`text-3xl md:text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-2`}>
-                    {stat.value}
+                  <div className="font-heading text-lg sm:text-xl font-extrabold text-white">
+                    <AnimatedCounter value={stat.value} />
                   </div>
-                  <div className="text-gray-300 text-sm md:text-base font-medium">{stat.label}</div>
-                  {/* Hover effect glow */}
-                  <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-300`}></div>
-                </motion.div>
+                  <div className="text-slate-300 text-[10px] font-semibold truncate">
+                    {stat.label}
+                  </div>
+                </div>
               ))}
             </motion.div>
-          </Reveal>
+
+          </motion.div>
+
+          {/* Right Column: Architectural Technical Spec Card (5 cols) */}
+          <motion.div 
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="lg:col-span-5 relative"
+          >
+            <div className="card-financial-dark border-gold/35 bg-slate-850 shadow-2xl relative overflow-hidden backdrop-blur-xl p-5 sm:p-6">
+              
+              {/* Header Title Bar */}
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+                <div className="flex items-center space-x-2">
+                  <Cpu className="w-4 h-4 text-gold" />
+                  <span className="font-heading font-extrabold text-xs uppercase tracking-wider text-white">
+                    Technical Spec Lens
+                  </span>
+                </div>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  <Activity className="w-2.5 h-2.5 mr-1 animate-pulse" /> Live Queue
+                </span>
+              </div>
+
+              {/* Spec Selector Buttons */}
+              <div className="grid grid-cols-3 gap-1.5 mb-4 p-1 bg-slate-950 rounded-xl border border-slate-800">
+                {[
+                  { id: 'radium', label: 'Radium' },
+                  { id: 'cnc', label: 'CNC LED' },
+                  { id: 'tint', label: 'Car Tint' }
+                ].map(spec => (
+                  <button
+                    key={spec.id}
+                    onClick={() => setActiveSpec(spec.id as any)}
+                    className={`py-1 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all ${
+                      activeSpec === spec.id
+                        ? 'bg-gold text-slate-950 font-extrabold shadow-sm'
+                        : 'text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    {spec.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Spec Matrix Details */}
+              <div className="space-y-2.5 bg-slate-950 p-3.5 rounded-xl border border-slate-800 mb-4">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-slate-300 font-semibold">Focus:</span>
+                  <span className="font-heading font-bold text-gold">{specDetails[activeSpec].title}</span>
+                </div>
+
+                <div className="flex justify-between items-center text-xs pt-1.5 border-t border-slate-850">
+                  <span className="text-slate-300 font-semibold">Cut Tolerance:</span>
+                  <span className="font-mono text-white font-bold">{specDetails[activeSpec].tolerance}</span>
+                </div>
+
+                <div className="flex justify-between items-center text-xs pt-1.5 border-t border-slate-850">
+                  <span className="text-slate-300 font-semibold">Reflectivity:</span>
+                  <span className="font-mono text-emerald-400 font-bold">{specDetails[activeSpec].reflectivity}</span>
+                </div>
+
+                <div className="flex justify-between items-center text-xs pt-1.5 border-t border-slate-850">
+                  <span className="text-slate-300 font-semibold">Base Stock:</span>
+                  <span className="text-white font-semibold truncate max-w-[150px] text-right">{specDetails[activeSpec].material}</span>
+                </div>
+
+                <div className="flex justify-between items-center text-xs pt-1.5 border-t border-slate-850">
+                  <span className="text-slate-300 font-semibold">Durability:</span>
+                  <span className="text-gold font-bold">{specDetails[activeSpec].durability}</span>
+                </div>
+              </div>
+
+              {/* Callout Footer */}
+              <div className="flex items-center justify-between text-[10px] text-slate-300 font-semibold pt-0.5">
+                <span className="flex items-center">
+                  <Layers className="w-3 h-3 text-gold mr-1" /> ISO 9001 Material Standard
+                </span>
+                <span className="text-gold font-bold uppercase tracking-wider">Verified Spec</span>
+              </div>
+
+            </div>
+          </motion.div>
+
         </div>
       </div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="flex flex-col items-center cursor-pointer"
-          onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-        >
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center p-1 backdrop-blur-sm bg-white/10">
-            <motion.div
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="w-1.5 h-3 bg-white rounded-full"
-            ></motion.div>
-          </div>
-          <span className="text-white/70 text-xs mt-2">Scroll</span>
-        </motion.div>
-      </motion.div>
-
-      {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-0"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl -z-0"></div>
     </section>
   );
 };
