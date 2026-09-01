@@ -1,0 +1,12 @@
+{
+  "buildCommand": "cd Panchal_Art && npm run build",
+  "outputDirectory": "Panchal_Art/dist",
+  "installCommand": "cd Panchal_Art && npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

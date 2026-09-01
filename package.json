@@ -1,0 +1,8 @@
+{
+  "name": "panchal-art-workspace",
+  "private": true,
+  "scripts": {
+    "build": "cd Panchal_Art && npm install && npm run build",
+    "install": "cd Panchal_Art && npm install"
+  }
+}
